@@ -28,7 +28,14 @@ thead
     color: #FFFFF0;
     font-size: 20px;
 }
-.suite_results
+td
+{
+    border: 1px solid #222;
+    padding: 8px 12px;
+    width: 25%;
+}
+
+.suite-results
 {
     width: 300px;
     margin: auto;
@@ -37,11 +44,11 @@ thead
     font-size: 16px;
     margin-bottom: 30px;
 }
-.suite_results.ok
+.suite-results.ok
 {
     background-color: #1C855D;
 }
-.suite_results.ko
+.suite-results.ko
 {
     background-color: #E84C3D;
 }
@@ -59,7 +66,6 @@ thead
     background-color: #E84C3D;
 }
 
-
 .head
 {
     color: #FFFFF0;
@@ -72,11 +78,4 @@ thead
 .ko
 {
     background-color: #E6634F;
-}
-
-td
-{
-    border: 1px solid #222;
-    padding: 8px 12px;
-    width: 25%;
 }

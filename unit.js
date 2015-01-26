@@ -42,7 +42,7 @@ var my_unit = (function () {
             totalOk += ok;
             totalKo += ko;
         });
-        $title.after('<div class="suite_results ' + (totalKo > 0 ? 'ko' : 'ok') + '">' + (totalOk + totalKo) + ' tests / ' + totalOk + ' pass / ' + totalKo + ' fail</div>')
+        $title.after('<div class="suite-results ' + (totalKo > 0 ? 'ko' : 'ok') + '">' + (totalOk + totalKo) + ' tests / ' + totalOk + ' pass / ' + totalKo + ' fail</div>')
     };
     return self;
 })();

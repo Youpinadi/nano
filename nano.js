@@ -121,10 +121,10 @@ var _ = (function () {
         return ret;
     });
 
-    self.length = self.curry(function(items)
+    self.length = function(items)
     {
         return items.length
-    });
+    };
 
     self.reverse = function(items)
     {
@@ -187,8 +187,6 @@ var _ = (function () {
         return ret;
     });
 
-
-
     self.invoke = self.curry(function(fn, items)
     {
         return _.map(function(item){
@@ -205,10 +203,7 @@ var _ = (function () {
         return memo;
     });
 
-    self.sum = self.curry(function(items)
-    {
-        return self.reduce(function(memo, item){return memo + item;}, 0, items);
-    });
+    self.sum = self.reduce(function(memo, item){return memo + item;}, 0);
 
     self.filter = self.curry(function(fn, items)
     {
