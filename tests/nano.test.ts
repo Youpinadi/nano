@@ -3,174 +3,188 @@ import {
   curry, compose, pipe, or, and,
   each, map, mapObj, filter, reduce,
   groupBy, countBy, invoke, where, match,
-  reverse,
+  split, join, reverse,
   prop, propEq, sum, length,
 } from '../src/index.js'
-import { testArray, testObject, heroes } from './fixtures.js'
+import { testArray, testObject, testComplexArray } from './fixtures.js'
 
 function simple(a: string, b: string, c: string) {
   return a + b + c
 }
 
 describe('curry', () => {
-  it('all three runes at once', () => {
+  it('should work with all args at once', () => {
     expect(curry(simple)('a', 'b', 'c')).toBe('abc')
   })
 
-  it('two runes then one', () => {
+  it('should work with two args then one', () => {
     expect(curry(simple)('a', 'b')('c')).toBe('abc')
   })
 
-  it('one rune then two', () => {
+  it('should work with one arg then two', () => {
     expect(curry(simple)('a')('b', 'c')).toBe('abc')
   })
 })
 
 describe('map', () => {
-  it('reverse the wizard spell', () => {
-    expect(map(reverse)(testArray)[0]).toBe('draziw')
+  it('should reverse each item in an array', () => {
+    expect(map(reverse)(testArray)[0]).toBe('tset')
   })
 
-  it('spell count preserved', () => {
+  it('should preserve array length', () => {
     expect(map(reverse)(testArray).length).toBe(testArray.length)
   })
 })
 
 describe('mapObj', () => {
-  it('reverse the wizard property', () => {
-    expect(mapObj(reverse)(testObject)['hero']).toBe('draziw')
+  it('should reverse each value in an object', () => {
+    expect(mapObj(reverse)(testObject)['key1']).toBe('tset')
   })
 })
 
 describe('compose', () => {
-  it('compose right-to-left', () => {
-    expect(compose(reverse, prop('hero'))(testObject)).toBe('draziw')
+  it('should compose functions right-to-left', () => {
+    expect(compose(reverse, prop('key1'))(testObject)).toBe('tset')
   })
 })
 
 describe('pipe', () => {
-  it('pipe left-to-right', () => {
-    expect(pipe(prop('hero'), reverse)(testObject)).toBe('draziw')
+  it('should pipe functions left-to-right', () => {
+    expect(pipe(prop('key1'), reverse)(testObject)).toBe('tset')
   })
 })
 
 describe('reverse', () => {
-  it('reverse the relic array', () => {
-    expect(reverse(testArray)[0]).toBe('dragon')
+  it('should reverse an array', () => {
+    expect(reverse(testArray)[0]).toBe('hi')
   })
 
-  it('reverse the dragon name', () => {
-    expect(reverse('dragon')).toBe('nogard')
+  it('should reverse a string', () => {
+    expect(reverse('test')).toBe('tset')
   })
 })
 
 describe('reduce', () => {
-  it('combine potion names', () => {
+  it('should reduce an array', () => {
     const fn = (memo: string, item: string) => memo + item
-    expect(reduce(fn, '', testArray)).toBe('wizardpotiondragon')
+    expect(reduce(fn, '', testArray)).toBe('testhellohi')
   })
 
-  it('combine object keys & values', () => {
+  it('should reduce an object', () => {
     const fn = (memo: string, item: string, index: number) => memo + String(index) + item
-    expect(reduce(fn, '', testObject)).toBe('herowizardlootpotionfoedragon')
+    expect(reduce(fn, '', testObject)).toBe('key1testkey2hellokey3hi')
   })
 })
 
 describe('filter', () => {
-  it('find the wizard', () => {
-    expect(filter((item: string) => item === 'wizard', testArray)[0]).toBe('wizard')
+  it('should filter array by equality', () => {
+    expect(filter((item: string) => item === 'test', testArray)[0]).toBe('test')
   })
 
-  it('only one wizard exists', () => {
-    expect(filter((item: string) => item === 'wizard', testArray).length).toBe(1)
+  it('should return correct filtered array length', () => {
+    expect(filter((item: string) => item === 'test', testArray).length).toBe(1)
   })
 })
 
 describe('prop', () => {
-  it('read the hero property', () => {
-    expect(prop('hero', testObject)).toBe('wizard')
+  it('should get a property from an object', () => {
+    expect(prop('key1', testObject)).toBe('test')
   })
 })
 
 describe('invoke', () => {
-  it('shout the first spell', () => {
-    expect(invoke('toUpperCase', testArray)[0]).toBe('WIZARD')
+  it('should invoke a method on each item', () => {
+    expect(invoke('toUpperCase', testArray)[0]).toBe('TEST')
   })
 })
 
 describe('propEq', () => {
-  it('find Elara by name', () => {
-    expect(filter(propEq('name', 'Elara'), heroes).length).toBe(1)
+  it('should filter by property equality', () => {
+    expect(filter(propEq('name', 'Jenny'), testComplexArray).length).toBe(1)
   })
 })
 
 describe('or', () => {
-  it('mages or owl owners', () => {
+  it('should match multiple predicates with OR', () => {
     expect(filter(
       or(
-        propEq('class', 'mage'),
-        propEq('pet', 'owl'),
+        propEq('gender', 'male'),
+        propEq('name', 'Jenny'),
       ),
-      heroes,
-    ).length).toBe(2)
+      testComplexArray,
+    ).length).toBe(5)
   })
 })
 
 describe('and', () => {
-  it('warriors from Shadowfen', () => {
+  it('should match multiple predicates with AND', () => {
     expect(filter(
       and(
-        propEq('class', 'warrior'),
-        propEq('realm', 'Shadowfen'),
+        propEq('gender', 'male'),
+        propEq('name', 'Eric'),
+        propEq('country', 'United States'),
       ),
-      heroes,
+      testComplexArray,
     ).length).toBe(1)
   })
 })
 
 describe('match', () => {
-  it('match an owl mage from Shadowfen', () => {
+  it('should filter by object pattern', () => {
     expect(match(
-      { class: 'mage', realm: 'Shadowfen', pet: 'owl' },
-      heroes,
+      { gender: 'male', name: 'Eric', country: 'United States' },
+      testComplexArray,
     ).length).toBe(1)
   })
 })
 
 describe('groupBy', () => {
-  it('group heroes by realm', () => {
-    expect(groupBy(prop('realm'), heroes)['Avalon'].length).toBe(3)
+  it('should group items by a key', () => {
+    expect(groupBy(prop('country'), testComplexArray)['France'].length).toBe(2)
   })
 })
 
 describe('countBy', () => {
-  it('count heroes by realm', () => {
-    expect(countBy(prop('realm'), heroes)['Avalon']).toBe(3)
+  it('should count items by a key', () => {
+    expect(countBy(prop('country'), testComplexArray)['France']).toBe(2)
   })
 })
 
 describe('each', () => {
-  it('iterate over the potion array', () => {
+  it('should iterate over an array', () => {
     const results: string[] = []
     each((item: string) => { results.push(item) }, testArray)
-    expect(results).toEqual(['wizard', 'potion', 'dragon'])
+    expect(results).toEqual(['test', 'hello', 'hi'])
   })
 })
 
 describe('length', () => {
-  it('size of the hero party', () => {
-    expect(length(heroes)).toBe(6)
+  it('should return array length', () => {
+    expect(length(testArray)).toBe(3)
   })
 })
 
 describe('sum', () => {
-  it('sum magic levels', () => {
+  it('should sum an array of numbers', () => {
     expect(sum([1, 2, 3, 4, 5])).toBe(15)
   })
 })
 
-describe('where', () => {
-  it('where oracle identifies Elara', () => {
-    expect(where({ name: 'Elara' }, heroes[4])).toBe(true)
+describe('split / join', () => {
+  it('should split and join strings', () => {
+    expect(split('', 'test')).toEqual(['t', 'e', 's', 't'])
+    expect(join('', ['t', 'e', 's', 't'])).toBe('test')
+  })
+})
+
+describe('curry partial application via dependency', () => {
+  it('should handle curried filter with propEq', () => {
+    const filterMale = filter(propEq('gender', 'male'))
+    expect(filterMale(testComplexArray).length).toBe(4)
+  })
+
+  it('should handle curried map with prop', () => {
+    const getNames = map(prop('name'))
+    expect(getNames(testComplexArray)).toContain('Nadir')
   })
 })

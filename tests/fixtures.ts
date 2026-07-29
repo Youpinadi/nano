@@ -1,24 +1,23 @@
-export const testArray = ['wizard', 'potion', 'dragon']
+export const testArray = ['test', 'hello', 'hi']
 
 export const testObject: Record<string, string> = {
-  hero: 'wizard',
-  loot: 'potion',
-  foe: 'dragon',
+  key1: 'test',
+  key2: 'hello',
+  key3: 'hi',
 }
 
-export interface Hero {
+export interface Person {
   name: string
-  class: string
-  level: number
-  realm: string
-  pet: string
+  gender: string
+  age: number
+  country: string
 }
 
-export const heroes: Hero[] = [
-  { name: 'Luna', class: 'mage', level: 34, realm: 'Avalon', pet: 'owl' },
-  { name: 'Ragnar', class: 'warrior', level: 25, realm: 'Avalon', pet: 'wolf' },
-  { name: 'Zara', class: 'rogue', level: 25, realm: 'Shadowfen', pet: 'cat' },
-  { name: 'Thorn', class: 'warrior', level: 56, realm: 'Shadowfen', pet: 'bear' },
-  { name: 'Elara', class: 'mage', level: 25, realm: 'Shadowfen', pet: 'owl' },
-  { name: 'Brock', class: 'paladin', level: 32, realm: 'Avalon', pet: 'horse' },
+export const testComplexArray: Person[] = [
+  { name: 'Nadir', gender: 'male', age: 34, country: 'France' },
+  { name: 'Eric', gender: 'male', age: 25, country: 'France' },
+  { name: 'Bob', gender: 'male', age: 25, country: 'United States' },
+  { name: 'Eric', gender: 'male', age: 56, country: 'United States' },
+  { name: 'Jenny', gender: 'female', age: 25, country: 'United States' },
+  { name: 'Roberta', gender: 'female', age: 32, country: 'United States' },
 ]
