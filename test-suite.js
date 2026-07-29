@@ -203,7 +203,7 @@ function render() {
       pass ? ok++ : ko++
 
       const row = document.createElement('tr')
-      row.className = pass ? 'bg-green-500' : 'bg-red-400'
+      row.className = pass ? 'bg-green-400' : 'bg-red-400'
       ;[desc, JSON.stringify(actual), JSON.stringify(expected)].forEach((v, i) => {
         const td = document.createElement('td')
         td.className = `px-3 py-2 border-b border-gray-700 text-gray-100${i < 2 ? ' border-r border-gray-700' : ''}`
@@ -215,7 +215,7 @@ function render() {
 
     const total = ok + ko
     const resultRow = document.createElement('tr')
-    resultRow.className = `font-bold ${ko > 0 ? 'bg-red-600' : 'bg-green-700'} text-gray-100`
+    resultRow.className = `font-bold ${ko > 0 ? 'bg-red-600' : 'bg-green-600'} text-gray-100`
     const resultCell = document.createElement('td')
     resultCell.colSpan = 3
     resultCell.className = 'px-3 py-2'
@@ -229,7 +229,7 @@ function render() {
   }
 
   const summary = document.createElement('div')
-  summary.className = `w-72 mx-auto text-center px-6 py-3 text-base text-gray-100 font-bold ${totalKo > 0 ? 'bg-red-600' : 'bg-green-700'}`
+  summary.className = `w-72 mx-auto text-center px-6 py-3 text-base text-gray-100 font-bold ${totalKo > 0 ? 'bg-red-600' : 'bg-green-600'}`
   summary.textContent = `${totalOk + totalKo} tests / ${totalOk} pass / ${totalKo} fail`
   root.appendChild(summary)
 }
