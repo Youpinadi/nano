@@ -1,4 +1,4 @@
-import { curry, compose, pipe, or, and, map, mapObj, filter, reduce, groupBy, countBy, invoke, where, match, reverse, prop, propEq, propEqInv, split, join, sum, length } from './dist/index.js'
+import { curry, compose, pipe, or, and, each, map, mapObj, filter, reduce, groupBy, countBy, invoke, where, match, reverse, prop, propEq, propEqInv, split, join, sum, length } from './dist/index.js'
 
 const testArray = ['test', 'hello', 'hi']
 const testObject = { key1: 'test', key2: 'hello', key3: 'hi' }
