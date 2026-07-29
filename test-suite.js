@@ -83,11 +83,26 @@ const suite = {
   ],
 }
 
+const $ = (tag, attrs = {}, ...children) => {
+  const el = document.createElement(tag)
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'className') el.className = v
+    else if (k === 'textContent') el.textContent = v
+    else if (k === 'colSpan') el.colSpan = v
+    else el.setAttribute(k, v)
+  }
+  children.forEach(c => el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c))
+  return el
+}
+
 function render() {
   const root = document.getElementById('root')
-  const title = document.createElement('h1')
-  title.textContent = 'nano.js — test suite'
-  root.appendChild(title)
+  root.className = 'bg-slate-800 min-h-screen py-8'
+
+  root.appendChild($('h1', {
+    className: 'text-4xl text-center font-normal text-gray-100 mb-8',
+    textContent: 'nano.js — test suite',
+  }))
 
   let totalOk = 0
   let totalKo = 0
@@ -96,59 +111,46 @@ function render() {
     let ok = 0
     let ko = 0
 
-    const table = document.createElement('table')
-    const thead = document.createElement('thead')
-    const headRow = document.createElement('tr')
-    const headCell = document.createElement('td')
-    headCell.colSpan = 4
-    const bold = document.createElement('b')
-    bold.textContent = groupName
-    headCell.appendChild(bold)
-    headRow.appendChild(headCell)
-    thead.appendChild(headRow)
-    table.appendChild(thead)
+    const rows = []
 
-    const labelRow = document.createElement('tr')
-    labelRow.className = 'head'
-    ;['Description', 'Value', 'Expected value'].forEach(t => {
-      const td = document.createElement('td')
-      td.textContent = t
-      labelRow.appendChild(td)
-    })
-    table.appendChild(labelRow)
+    rows.push($('tr', { className: 'bg-slate-700' },
+      $('td', { colSpan: 4, className: 'text-xl text-gray-100 p-3' },
+        $('b', { textContent: groupName }),
+      ),
+    ))
+
+    rows.push($('tr', { className: 'bg-slate-600 text-gray-100' },
+      $('td', { className: 'p-2 w-1/4', textContent: 'Description' }),
+      $('td', { className: 'p-2 w-1/4', textContent: 'Value' }),
+      $('td', { className: 'p-2 w-1/4', textContent: 'Expected value' }),
+    ))
 
     for (const [desc, actual, expected] of tests) {
       const pass = actual === expected
       pass ? ok++ : ko++
 
-      const row = document.createElement('tr')
-      row.className = pass ? 'ok' : 'ko'
-      ;[desc, JSON.stringify(actual), JSON.stringify(expected)].forEach(v => {
-        const td = document.createElement('td')
-        td.textContent = v
-        row.appendChild(td)
-      })
-      table.appendChild(row)
+      rows.push($('tr', { className: pass ? 'bg-green-500' : 'bg-red-400' },
+        $('td', { className: 'p-2 border border-gray-800', textContent: desc }),
+        $('td', { className: 'p-2 border border-gray-800', textContent: JSON.stringify(actual) }),
+        $('td', { className: 'p-2 border border-gray-800', textContent: JSON.stringify(expected) }),
+      ))
     }
 
     const total = ok + ko
-    const resultRow = document.createElement('tr')
-    resultRow.className = `result ${ko > 0 ? 'ko' : 'ok'}`
-    const resultCell = document.createElement('td')
-    resultCell.colSpan = 4
-    resultCell.textContent = `${total} tests / ${ok} pass / ${ko} fail`
-    resultRow.appendChild(resultCell)
-    table.appendChild(resultRow)
+    rows.push($('tr', { className: `font-bold ${ko > 0 ? 'bg-red-600' : 'bg-green-700'} text-gray-100` },
+      $('td', { colSpan: 4, className: 'p-2', textContent: `${total} tests / ${ok} pass / ${ko} fail` }),
+    ))
 
-    root.appendChild(table)
+    root.appendChild($('table', { className: 'w-4/5 mx-auto border-collapse text-xs text-gray-100 mb-8 bg-gray-300' }, ...rows))
+
     totalOk += ok
     totalKo += ko
   }
 
-  const summary = document.createElement('div')
-  summary.className = `suite-results ${totalKo > 0 ? 'ko' : 'ok'}`
-  summary.textContent = `${totalOk + totalKo} tests / ${totalOk} pass / ${totalKo} fail`
-  root.appendChild(summary)
+  root.appendChild($('div', {
+    className: `w-72 mx-auto text-center p-3 text-base mb-8 text-gray-100 font-bold ${totalKo > 0 ? 'bg-red-600' : 'bg-green-700'}`,
+    textContent: `${totalOk + totalKo} tests / ${totalOk} pass / ${totalKo} fail`,
+  }))
 }
 
 render()

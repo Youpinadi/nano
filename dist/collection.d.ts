@@ -1,0 +1,21 @@
+export declare function each<T>(fn: (value: T, key: string | number) => void): (items: Record<string, T> | T[]) => void;
+export declare function each<T>(fn: (value: T, key: string | number) => void, items: Record<string, T> | T[]): void;
+export declare function map<T, R>(fn: (value: T, index: number) => R): (items: T[]) => R[];
+export declare function map<T, R>(fn: (value: T, index: number) => R, items: T[]): R[];
+export declare function mapObj<T, R>(fn: (value: T, key: string) => R): (items: Record<string, T>) => Record<string, R>;
+export declare function mapObj<T, R>(fn: (value: T, key: string) => R, items: Record<string, T>): Record<string, R>;
+export declare function filter<T>(predicate: (value: T, index: number) => boolean): (items: T[]) => T[];
+export declare function filter<T>(predicate: (value: T, index: number) => boolean, items: T[]): T[];
+export declare function reduce<T, R>(fn: (memo: R, value: T, index: number) => R, memo: R): (items: T[]) => R;
+export declare function reduce<T, R>(fn: (memo: R, value: T, index: number) => R, memo: R, items: T[]): R;
+export declare function groupBy<T>(fn: (item: T) => string): (items: T[]) => Record<string, T[]>;
+export declare function groupBy<T>(fn: (item: T) => string, items: T[]): Record<string, T[]>;
+export declare function countBy<T>(fn: (item: T) => string): (items: T[]) => Record<string, number>;
+export declare function countBy<T>(fn: (item: T) => string, items: T[]): Record<string, number>;
+export declare function invoke<T, K extends keyof T>(methodName: K): (items: T[]) => T[K] extends (...args: any[]) => infer R ? R[] : never;
+export declare function invoke<T, K extends keyof T>(methodName: K, items: T[]): T[K] extends (...args: any[]) => infer R ? R[] : never;
+export declare function where<T extends Record<string, any>>(pattern: Partial<T>): (item: T) => boolean;
+export declare function where<T extends Record<string, any>>(pattern: Partial<T>, item: T): boolean;
+export declare function match<T extends Record<string, any>>(pattern: Partial<T>): (items: T[]) => T[];
+export declare function match<T extends Record<string, any>>(pattern: Partial<T>, items: T[]): T[];
+//# sourceMappingURL=collection.d.ts.map
