@@ -106,7 +106,7 @@ function render() {
     const titleRow = document.createElement('tr')
     const titleCell = document.createElement('td')
     titleCell.colSpan = 4
-    titleCell.className = 'bg-slate-700 text-gray-100 text-lg px-4 py-3'
+    titleCell.className = 'bg-slate-700 text-gray-100 text-lg px-4 py-3 border border-gray-700'
     titleCell.innerHTML = `<b>${groupName}</b>`
     titleRow.appendChild(titleCell)
     table.appendChild(titleRow)
@@ -141,7 +141,7 @@ function render() {
     resultRow.className = `font-bold ${ko > 0 ? 'bg-red-600' : 'bg-green-700'} text-gray-100`
     const resultCell = document.createElement('td')
     resultCell.colSpan = 4
-    resultCell.className = 'px-3 py-2'
+    resultCell.className = 'px-3 py-2 border border-gray-700'
     resultCell.textContent = `${total} tests / ${ok} pass / ${ko} fail`
     resultRow.appendChild(resultCell)
     table.appendChild(resultRow)
