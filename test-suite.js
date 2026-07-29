@@ -22,12 +22,14 @@ const suite = {
     ['one arg at a time', curry(simple)('a')('b')('c'), 'abc'],
     ['single-arg fn returns immediately', curry((x) => x)(42), 42],
     ['zero-arg fn returns immediately', curry(() => 42)(), 42],
+    ['custom arity smaller than fn.length', typeof curry(simple, 2)(1), 'function'],
   ],
   each: [
     ['calls fn for each element', () => { let acc = ''; each(x => acc += x, ['a', 'b', 'c']); return acc }, 'abc'],
     ['includes index', () => { const idx = []; each((_, i) => idx.push(i), ['x', 'y']); return idx }, ['0', '1']],
     ['over object keys', () => { const k = []; each((_, key) => k.push(key), { a: 1, b: 2 }); return k }, ['a', 'b']],
     ['empty array does nothing', () => { let called = false; each(() => called = true, []); return called }, false],
+    ['is curried', () => { const f = each(x => x); return f([testArray[0]]) }, undefined],
   ],
   map: [
     ['reverse each item', map(reverse)(testArray)[0], 'tset'],
@@ -35,11 +37,14 @@ const suite = {
     ['works on objects', map(reverse)(testObject)[0], 'tset'],
     ['identity transform', map(x => x, [1, 2, 3]), [1, 2, 3]],
     ['empty array', map(x => x * 2, []), []],
+    ['extracts a property', () => map(prop('name'), testComplexArray).includes('Nadir'), true],
+    ['is curried', () => { const f = map(x => x * 2); return f([1, 2, 3]) }, [2, 4, 6]],
   ],
   mapObj: [
     ['reverse each value', mapObj(reverse)(testObject).key1, 'tset'],
     ['preserves keys', () => Object.keys(mapObj(x => x + '!', testObject)), ['key1', 'key2', 'key3']],
     ['empty object', mapObj(x => x, {}), {}],
+    ['is curried', () => { const f = mapObj(x => x + '!'); return f({ a: 'hello' }).a }, 'hello!'],
   ],
   compose: [
     ['compose right-to-left', compose(reverse, prop('key1'))(testObject), 'tset'],
@@ -64,6 +69,7 @@ const suite = {
     ['concatenate object', reduce((m, i, k) => m + k + i, '')(testObject), 'key1testkey2hellokey3hi'],
     ['with initial value', reduce((m, x) => m + x, 10, [1, 2, 3]), 16],
     ['empty array', reduce((m, x) => m + x, 0, []), 0],
+    ['is curried', () => { const f = reduce((m, x) => m + x, ''); return f(['a', 'b', 'c']) }, 'abc'],
   ],
   filter: [
     ['by equality', filter(i => i === 'test')(testArray)[0], 'test'],
@@ -73,10 +79,12 @@ const suite = {
     ['none match', filter(() => false, [1, 2, 3]), []],
     ['all match', filter(() => true, [1, 2, 3]), [1, 2, 3]],
     ['empty array', filter(() => true, []), []],
+    ['is curried', () => { const f = filter(x => x === 'test'); return f(testArray).length }, 1],
   ],
   prop: [
     ['get property', prop('key1')(testObject), 'test'],
     ['missing key', prop('nope')(testObject), undefined],
+    ['is curried', () => { const f = prop('name'); return f(testComplexArray[0]) }, 'Nadir'],
   ],
   invoke: [
     ['toUpperCase', invoke('toUpperCase')(testArray)[0], 'TEST'],
@@ -85,6 +93,12 @@ const suite = {
   propEq: [
     ['find Jenny', filter(propEq('name', 'Jenny'))(testComplexArray).length, 1],
     ['no match', filter(propEq('name', 'Nobody'))(testComplexArray).length, 0],
+    ['is curried', () => { const f = propEq('gender', 'male'); return filter(f, testComplexArray).length }, 4],
+  ],
+  propEqInv: [
+    ['finds match', propEqInv('male', 'gender', testComplexArray[0]), true],
+    ['no match', propEqInv('female', 'gender', testComplexArray[0]), false],
+    ['is curried', () => { const f = propEqInv('male', 'gender'); return f(testComplexArray[0]) }, true],
   ],
   or: [
     ['male or Jenny', filter(or(propEq('gender', 'male'), propEq('name', 'Jenny')))(testComplexArray).length, 5],
@@ -100,19 +114,24 @@ const suite = {
     ['object pattern', match({ gender: 'male', name: 'Eric', country: 'United States' })(testComplexArray).length, 1],
     ['empty pattern matches all', match({})(testComplexArray).length, testComplexArray.length],
     ['no match', match({ name: 'Nobody' })(testComplexArray).length, 0],
+    ['is curried', () => { const f = match({ country: 'France' }); return f(testComplexArray).length }, 2],
   ],
   groupBy: [
     ['group by country', groupBy(prop('country'))(testComplexArray).France.length, 2],
     ['empty array', groupBy(prop('country'))([]), {}],
+    ['is curried', () => { const f = groupBy(prop('country')); return f(testComplexArray)['United States'].length }, 4],
   ],
   countBy: [
     ['count by country', countBy(prop('country'))(testComplexArray).France, 2],
     ['empty array', countBy(prop('country'))([]), {}],
+    ['is curried', () => { const f = countBy(prop('country')); return f(testComplexArray)['United States'] }, 4],
   ],
   where: [
     ['matches Jenny', where({ name: 'Jenny' })(testComplexArray[4]), true],
     ['no match', where({ name: 'Jenny' })(testComplexArray[0]), false],
     ['empty pattern', where({})(testComplexArray[0]), true],
+    ['is curried (match)', () => { const f = where({ name: 'Jenny' }); return f(testComplexArray[4]) }, true],
+    ['is curried (no match)', () => { const f = where({ name: 'Jenny' }); return f(testComplexArray[0]) }, false],
   ],
   sum: [
     ['basic sum', sum([1, 2, 3, 4, 5]), 15],
@@ -127,6 +146,7 @@ const suite = {
   split: [
     ['by character', split('', 'test'), ['t', 'e', 's', 't']],
     ['by word', split(' ', 'hello world'), ['hello', 'world']],
+    ['is curried', () => { const f = split(','); return f('a,b,c') }, ['a', 'b', 'c']],
   ],
   join: [
     ['by character', join('', ['t', 'e', 's', 't']), 'test'],
