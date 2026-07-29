@@ -100,8 +100,9 @@ function render() {
     let ko = 0
 
     const table = document.createElement('table')
-    table.className = 'border-separate border-spacing-0 rounded-xl border border-gray-700 overflow-hidden w-4/5 mx-auto text-sm mb-8'
+    table.className = 'border-separate rounded-xl border border-gray-700 overflow-hidden w-4/5 mx-auto text-sm mb-8'
     table.style.tableLayout = 'fixed'
+    table.style.borderSpacing = '0'
 
     const titleRow = document.createElement('tr')
     const titleCell = document.createElement('td')
