@@ -1,85 +1,85 @@
 import { curry, compose, pipe, or, and, map, mapObj, filter, reduce, groupBy, countBy, invoke, where, match, reverse, prop, propEq, sum, length } from './dist/index.js'
 
-const testArray = ['test', 'hello', 'hi']
-const testObject = { key1: 'test', key2: 'hello', key3: 'hi' }
+const testArray = ['wizard', 'potion', 'dragon']
+const testObject = { hero: 'wizard', loot: 'potion', foe: 'dragon' }
 
-const testComplexArray = [
-  { name: 'Nadir', gender: 'male', age: 34, country: 'France' },
-  { name: 'Eric', gender: 'male', age: 25, country: 'France' },
-  { name: 'Bob', gender: 'male', age: 25, country: 'United States' },
-  { name: 'Eric', gender: 'male', age: 56, country: 'United States' },
-  { name: 'Jenny', gender: 'female', age: 25, country: 'United States' },
-  { name: 'Roberta', gender: 'female', age: 32, country: 'United States' },
+const heroes = [
+  { name: 'Luna', class: 'mage', level: 34, realm: 'Avalon', pet: 'owl' },
+  { name: 'Ragnar', class: 'warrior', level: 25, realm: 'Avalon', pet: 'wolf' },
+  { name: 'Zara', class: 'rogue', level: 25, realm: 'Shadowfen', pet: 'cat' },
+  { name: 'Thorn', class: 'warrior', level: 56, realm: 'Shadowfen', pet: 'bear' },
+  { name: 'Elara', class: 'mage', level: 25, realm: 'Shadowfen', pet: 'owl' },
+  { name: 'Brock', class: 'paladin', level: 32, realm: 'Avalon', pet: 'horse' },
 ]
 
 function simple(a, b, c) { return a + b + c }
 
 const suite = {
   curry: [
-    ['all args at once', curry(simple)('a', 'b', 'c'), 'abc'],
-    ['two args then one', curry(simple)('a', 'b')('c'), 'abc'],
-    ['one arg then two', curry(simple)('a')('b', 'c'), 'abc'],
+    ['🔥 all three runes at once', curry(simple)('a', 'b', 'c'), 'abc'],
+    ['🔥 two runes, then one', curry(simple)('a', 'b')('c'), 'abc'],
+    ['🔥 one rune, then two', curry(simple)('a')('b', 'c'), 'abc'],
   ],
   map: [
-    ['reverse each item', map(reverse)(testArray)[0], 'tset'],
-    ['same length', map(reverse)(testArray).length, testArray.length],
-    ['works on objects', map(reverse)(testObject)[0], 'tset'],
+    ['🔄 reverse the wizard spell', map(reverse)(testArray)[0], 'draziw'],
+    ['🔄 spell count preserved', map(reverse)(testArray).length, testArray.length],
+    ['🔄 reverse works on ancient tomes', map(reverse)(testObject)[0], 'draziw'],
   ],
   mapObj: [
-    ['reverse each value', mapObj(reverse)(testObject).key1, 'tset'],
+    ['📜 reverse the scroll of wizard', mapObj(reverse)(testObject).hero, 'draziw'],
   ],
   compose: [
-    ['compose right-to-left', compose(reverse, prop('key1'))(testObject), 'tset'],
+    ['🧙 compose magic: reverse then read', compose(reverse, prop('hero'))(testObject), 'draziw'],
   ],
   pipe: [
-    ['pipe left-to-right', pipe(prop('key1'), reverse)(testObject), 'tset'],
+    ['🧪 pipe potion: read then reverse', pipe(prop('hero'), reverse)(testObject), 'draziw'],
   ],
   reverse: [
-    ['reverse array', reverse(testArray)[0], 'hi'],
-    ['reverse string', reverse('test'), 'tset'],
+    ['🔁 reverse the relic array', reverse(testArray)[0], 'dragon'],
+    ['🔁 reverse the dragon name', reverse('dragon'), 'nogard'],
   ],
   reduce: [
-    ['reduce array', reduce((m, i) => m + i, '')(testArray), 'testhellohi'],
-    ['reduce object', reduce((m, i, k) => m + k + i, '')(testObject), 'key1testkey2hellokey3hi'],
+    ['📦 combine potion names', reduce((m, i) => m + i, '')(testArray), 'wizardpotiondragon'],
+    ['📦 combine object keys & values', reduce((m, i, k) => m + k + i, '')(testObject), 'herowizardlootpotionfoedragon'],
   ],
   filter: [
-    ['filter by equality', filter(i => i === 'test')(testArray)[0], 'test'],
-    ['filter length', filter(i => i === 'test')(testArray).length, 1],
-    ['filter object', filter(i => i === 'test')(testObject)[0], 'test'],
-    ['filter object length', filter(i => i === 'test')(testObject).length, 1],
+    ['🎯 find the wizard', filter(i => i === 'wizard')(testArray)[0], 'wizard'],
+    ['🎯 only one wizard exists', filter(i => i === 'wizard')(testArray).length, 1],
+    ['🎯 find wizard in the tome', filter(i => i === 'wizard')(testObject)[0], 'wizard'],
+    ['🎯 only one wizard in the tome', filter(i => i === 'wizard')(testObject).length, 1],
   ],
   prop: [
-    ['get property', prop('key1')(testObject), 'test'],
+    ['🔍 read the hero property', prop('hero')(testObject), 'wizard'],
   ],
   invoke: [
-    ['invoke method', invoke('toUpperCase')(testArray)[0], 'TEST'],
+    ['📢 shout the first spell', invoke('toUpperCase')(testArray)[0], 'WIZARD'],
   ],
   propEq: [
-    ['filter by propEq', filter(propEq('name', 'Jenny'))(testComplexArray).length, 1],
+    ['🎯 find Elara by name', filter(propEq('name', 'Elara'))(heroes).length, 1],
   ],
   or: [
-    ['or predicate', filter(or(propEq('gender', 'male'), propEq('name', 'Jenny')))(testComplexArray).length, 5],
+    ['🎭 mages or owl owners', filter(or(propEq('class', 'mage'), propEq('pet', 'owl')))(heroes).length, 2],
   ],
   and: [
-    ['and predicate', filter(and(propEq('gender', 'male'), propEq('name', 'Eric'), propEq('country', 'United States')))(testComplexArray).length, 1],
+    ['🎭 warriors from Shadowfen', filter(and(propEq('class', 'warrior'), propEq('realm', 'Shadowfen')))(heroes).length, 1],
   ],
   match: [
-    ['match pattern', match({ gender: 'male', name: 'Eric', country: 'United States' })(testComplexArray).length, 1],
+    ['🎭 match an owl mage from Shadowfen', match({ class: 'mage', realm: 'Shadowfen', pet: 'owl' })(heroes).length, 1],
   ],
   groupBy: [
-    ['group by country', groupBy(prop('country'))(testComplexArray).France.length, 2],
+    ['🏰 group heroes by realm', groupBy(prop('realm'))(heroes).Avalon.length, 3],
   ],
   countBy: [
-    ['count by country', countBy(prop('country'))(testComplexArray).France, 2],
+    ['🏰 count heroes by realm', countBy(prop('realm'))(heroes).Avalon, 3],
   ],
   where: [
-    ['where predicate returns true for match', where({ name: 'Jenny' })(testComplexArray[4]), true],
+    ['🎯 where oracle identifies Elara', where({ name: 'Elara' })(heroes[4]), true],
   ],
   sum: [
-    ['sum numbers', sum([1, 2, 3, 4, 5]), 15],
+    ['➕ sum magic levels', sum([1, 2, 3, 4, 5]), 15],
   ],
   length: [
-    ['array length', length(testArray), 3],
+    ['📏 length of the hero party', length(heroes), 6],
   ],
 }
 
