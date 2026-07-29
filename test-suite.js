@@ -203,10 +203,11 @@ function render() {
       pass ? ok++ : ko++
 
       const row = document.createElement('tr')
-      row.className = pass ? 'bg-green-400' : 'bg-red-400'
+      row.className = pass ? 'bg-green-300' : 'bg-red-400'
       ;[desc, JSON.stringify(actual), JSON.stringify(expected)].forEach((v, i) => {
         const td = document.createElement('td')
-        td.className = `px-3 py-2 border-b border-gray-700 text-gray-100${i < 2 ? ' border-r border-gray-700' : ''}`
+        const tc = pass ? 'text-gray-900' : 'text-gray-100'
+        td.className = `px-3 py-2 border-b border-gray-700 ${tc}${i < 2 ? ' border-r border-gray-700' : ''}`
         td.textContent = v
         row.appendChild(td)
       })
