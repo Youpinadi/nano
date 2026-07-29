@@ -4,6 +4,8 @@ A pet functional library, rewritten in modern TypeScript.
 
 Don't use in production ;)
 
+Test suite: [youpinadi.github.io/nano](https://youpinadi.github.io/nano/)
+
 ## Usage
 
 ```typescript
