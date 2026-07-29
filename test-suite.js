@@ -1,4 +1,4 @@
-import { curry, compose, pipe, or, and, map, mapObj, filter, reduce, groupBy, countBy, invoke, where, match, reverse, prop, propEq, sum, length } from './dist/index.js'
+import { curry, compose, pipe, or, and, map, mapObj, filter, reduce, groupBy, countBy, invoke, where, match, reverse, prop, propEq, propEqInv, split, join, sum, length } from './dist/index.js'
 
 const testArray = ['test', 'hello', 'hi']
 const testObject = { key1: 'test', key2: 'hello', key3: 'hi' }
@@ -19,67 +19,118 @@ const suite = {
     ['all args at once', curry(simple)('a', 'b', 'c'), 'abc'],
     ['two args then one', curry(simple)('a', 'b')('c'), 'abc'],
     ['one arg then two', curry(simple)('a')('b', 'c'), 'abc'],
+    ['one arg at a time', curry(simple)('a')('b')('c'), 'abc'],
+    ['single-arg fn returns immediately', curry((x) => x)(42), 42],
+    ['zero-arg fn returns immediately', curry(() => 42)(), 42],
+  ],
+  each: [
+    ['calls fn for each element', () => { let acc = ''; each(x => acc += x, ['a', 'b', 'c']); return acc }, 'abc'],
+    ['includes index', () => { const idx = []; each((_, i) => idx.push(i), ['x', 'y']); return idx }, ['0', '1']],
+    ['over object keys', () => { const k = []; each((_, key) => k.push(key), { a: 1, b: 2 }); return k }, ['a', 'b']],
+    ['empty array does nothing', () => { let called = false; each(() => called = true, []); return called }, false],
   ],
   map: [
     ['reverse each item', map(reverse)(testArray)[0], 'tset'],
-    ['same length', map(reverse)(testArray).length, testArray.length],
+    ['preserves length', map(reverse)(testArray).length, testArray.length],
     ['works on objects', map(reverse)(testObject)[0], 'tset'],
+    ['identity transform', map(x => x, [1, 2, 3]), [1, 2, 3]],
+    ['empty array', map(x => x * 2, []), []],
   ],
   mapObj: [
     ['reverse each value', mapObj(reverse)(testObject).key1, 'tset'],
+    ['preserves keys', () => Object.keys(mapObj(x => x + '!', testObject)), ['key1', 'key2', 'key3']],
+    ['empty object', mapObj(x => x, {}), {}],
   ],
   compose: [
     ['compose right-to-left', compose(reverse, prop('key1'))(testObject), 'tset'],
+    ['three functions', compose(reverse, s => s.toUpperCase(), prop('key1'))(testObject), 'TSET'],
+    ['single function', compose(reverse)('abc'), 'cba'],
   ],
   pipe: [
     ['pipe left-to-right', pipe(prop('key1'), reverse)(testObject), 'tset'],
+    ['three functions', pipe(prop('key1'), s => s.toUpperCase(), reverse)(testObject), 'TSET'],
+    ['single function', pipe(reverse)('abc'), 'cba'],
   ],
   reverse: [
     ['reverse array', reverse(testArray)[0], 'hi'],
     ['reverse string', reverse('test'), 'tset'],
+    ['empty array', reverse([]), []],
+    ['single element', reverse([42]), [42]],
+    ['empty string', reverse(''), ''],
+    ['palindrome', reverse('radar'), 'radar'],
   ],
   reduce: [
-    ['reduce array', reduce((m, i) => m + i, '')(testArray), 'testhellohi'],
-    ['reduce object', reduce((m, i, k) => m + k + i, '')(testObject), 'key1testkey2hellokey3hi'],
+    ['concatenate array', reduce((m, i) => m + i, '')(testArray), 'testhellohi'],
+    ['concatenate object', reduce((m, i, k) => m + k + i, '')(testObject), 'key1testkey2hellokey3hi'],
+    ['with initial value', reduce((m, x) => m + x, 10, [1, 2, 3]), 16],
+    ['empty array', reduce((m, x) => m + x, 0, []), 0],
   ],
   filter: [
-    ['filter by equality', filter(i => i === 'test')(testArray)[0], 'test'],
-    ['filter length', filter(i => i === 'test')(testArray).length, 1],
-    ['filter object', filter(i => i === 'test')(testObject)[0], 'test'],
-    ['filter object length', filter(i => i === 'test')(testObject).length, 1],
+    ['by equality', filter(i => i === 'test')(testArray)[0], 'test'],
+    ['correct length', filter(i => i === 'test')(testArray).length, 1],
+    ['works on objects', filter(i => i === 'test')(testObject)[0], 'test'],
+    ['object length', filter(i => i === 'test')(testObject).length, 1],
+    ['none match', filter(() => false, [1, 2, 3]), []],
+    ['all match', filter(() => true, [1, 2, 3]), [1, 2, 3]],
+    ['empty array', filter(() => true, []), []],
   ],
   prop: [
     ['get property', prop('key1')(testObject), 'test'],
+    ['missing key', prop('nope')(testObject), undefined],
   ],
   invoke: [
-    ['invoke method', invoke('toUpperCase')(testArray)[0], 'TEST'],
+    ['toUpperCase', invoke('toUpperCase')(testArray)[0], 'TEST'],
+    ['empty array', invoke('toString')([]), []],
   ],
   propEq: [
-    ['filter by propEq', filter(propEq('name', 'Jenny'))(testComplexArray).length, 1],
+    ['find Jenny', filter(propEq('name', 'Jenny'))(testComplexArray).length, 1],
+    ['no match', filter(propEq('name', 'Nobody'))(testComplexArray).length, 0],
   ],
   or: [
-    ['or predicate', filter(or(propEq('gender', 'male'), propEq('name', 'Jenny')))(testComplexArray).length, 5],
+    ['male or Jenny', filter(or(propEq('gender', 'male'), propEq('name', 'Jenny')))(testComplexArray).length, 5],
+    ['single predicate', filter(or(propEq('gender', 'male')))(testComplexArray).length, 4],
+    ['none match', filter(or(() => false), [1, 2, 3]), []],
   ],
   and: [
-    ['and predicate', filter(and(propEq('gender', 'male'), propEq('name', 'Eric'), propEq('country', 'United States')))(testComplexArray).length, 1],
+    ['male Eric from US', filter(and(propEq('gender', 'male'), propEq('name', 'Eric'), propEq('country', 'United States')))(testComplexArray).length, 1],
+    ['single predicate', filter(and(propEq('gender', 'male')))(testComplexArray).length, 4],
+    ['none match', filter(and(() => true, () => false), [1, 2, 3]), []],
   ],
   match: [
-    ['match pattern', match({ gender: 'male', name: 'Eric', country: 'United States' })(testComplexArray).length, 1],
+    ['object pattern', match({ gender: 'male', name: 'Eric', country: 'United States' })(testComplexArray).length, 1],
+    ['empty pattern matches all', match({})(testComplexArray).length, testComplexArray.length],
+    ['no match', match({ name: 'Nobody' })(testComplexArray).length, 0],
   ],
   groupBy: [
     ['group by country', groupBy(prop('country'))(testComplexArray).France.length, 2],
+    ['empty array', groupBy(prop('country'))([]), {}],
   ],
   countBy: [
     ['count by country', countBy(prop('country'))(testComplexArray).France, 2],
+    ['empty array', countBy(prop('country'))([]), {}],
   ],
   where: [
-    ['where predicate returns true for match', where({ name: 'Jenny' })(testComplexArray[4]), true],
+    ['matches Jenny', where({ name: 'Jenny' })(testComplexArray[4]), true],
+    ['no match', where({ name: 'Jenny' })(testComplexArray[0]), false],
+    ['empty pattern', where({})(testComplexArray[0]), true],
   ],
   sum: [
-    ['sum numbers', sum([1, 2, 3, 4, 5]), 15],
+    ['basic sum', sum([1, 2, 3, 4, 5]), 15],
+    ['empty array', sum([]), 0],
+    ['single element', sum([42]), 42],
+    ['negative numbers', sum([-5, 5, -2, 2]), 0],
   ],
   length: [
     ['array length', length(testArray), 3],
+    ['empty array', length([]), 0],
+  ],
+  split: [
+    ['by character', split('', 'test'), ['t', 'e', 's', 't']],
+    ['by word', split(' ', 'hello world'), ['hello', 'world']],
+  ],
+  join: [
+    ['by character', join('', ['t', 'e', 's', 't']), 'test'],
+    ['with separator', join(', ', ['a', 'b', 'c']), 'a, b, c'],
   ],
 }
 
@@ -122,8 +173,13 @@ function render() {
     })
     table.appendChild(headRow)
 
-    for (const [desc, actual, expected] of tests) {
-      const pass = actual === expected
+    for (let [desc, actual, expected] of tests) {
+      if (typeof actual === 'function') actual = actual()
+
+      const isArrayOrObj = (v) => v !== null && typeof v === 'object'
+      const pass = isArrayOrObj(actual) || isArrayOrObj(expected)
+        ? JSON.stringify(actual) === JSON.stringify(expected)
+        : actual === expected
       pass ? ok++ : ko++
 
       const row = document.createElement('tr')
